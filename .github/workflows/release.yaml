@@ -19,7 +19,7 @@ jobs:
       # Required so that a release triggers follow up workflows
       - name: 🔑 Generate Token
         id: generate-token
-        uses: peter-murray/workflow-application-token-action@v3
+        uses: peter-murray/workflow-application-token-action@v4
         with:
           application_id: ${{ secrets.CI_BOT_ID }}
           application_private_key: ${{ secrets.CI_BOT_KEY }}
