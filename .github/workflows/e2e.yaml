@@ -1,0 +1,72 @@
+name: 🧪 E2E Deployment Test
+
+on:
+  workflow_dispatch:
+  # push:
+  #   branches:
+  #     - main
+  # pull_request:
+  #   branches:
+  #     - main
+
+jobs:
+  deploy:
+    name: 🚀 Deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🔑 Google Auth
+        id: auth
+        uses: google-github-actions/auth@v2
+        with:
+          token_format: 'access_token'
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_POOL }}
+          service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+
+      - uses: ./
+        name: 🚀 Deploy
+        id: deploy
+        with:
+          manifest_path: e2e/service_manifest.yaml
+          gcp_project: ${{ secrets.GCP_PROJECT_ID }}
+          dry_run: true
+      
+      - name: 👀 Validate Outputs
+        shell: bash
+        run: |
+          # Extract expected values from manifest
+          EXPECTED_NAME=$(yq eval '.metadata.name' e2e/service_manifest.yaml)
+          EXPECTED_REGION=$(yq eval '.metadata.annotations."run.googleapis.com/region"' e2e/service_manifest.yaml)
+          EXPECTED_TYPE="service"
+
+          # Check region output
+          if [[ -z "${{ steps.deploy.outputs.region }}" ]]; then
+            echo "::error::Deploy action did not output a region"
+            exit 1
+          elif [[ "${{ steps.deploy.outputs.region }}" != "$EXPECTED_REGION" ]]; then
+            echo "::error::Region mismatch: got '${{ steps.deploy.outputs.region }}', expected '$EXPECTED_REGION'"
+            exit 1
+          fi
+          echo "region=${{ steps.deploy.outputs.region }}"
+
+          # Check name output
+          if [[ -z "${{ steps.deploy.outputs.name }}" ]]; then
+            echo "::error::Deploy action did not output a service name"
+            exit 1
+          elif [[ "${{ steps.deploy.outputs.name }}" != "$EXPECTED_NAME" ]]; then
+            echo "::error::Service name mismatch: got '${{ steps.deploy.outputs.name }}', expected '$EXPECTED_NAME'"
+            exit 1
+          fi
+          echo "name=${{ steps.deploy.outputs.name }}"
+
+          # Check type output
+          if [[ -z "${{ steps.deploy.outputs.type }}" ]]; then
+            echo "::error::Deploy action did not output a service type"
+            exit 1
+          elif [[ "${{ steps.deploy.outputs.type }}" != "$EXPECTED_TYPE" ]]; then
+            echo "::error::Service type mismatch: got '${{ steps.deploy.outputs.type }}', expected '$EXPECTED_TYPE'"
+            exit 1
+          fi
+          echo "type=${{ steps.deploy.outputs.type }}"

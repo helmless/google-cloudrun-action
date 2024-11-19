@@ -1,0 +1,57 @@
+name: Helmless Google Cloud Run Deploy
+description: Deploys a rendered Helmless manifest to Google Cloud Run.
+author: 'Michael Reichenbach (Silthus)'
+branding:
+  icon: 'cloud'
+  color: 'blue'
+
+inputs:
+  manifest_path:
+    description: 'The path to the rendered Helmless Google Cloud Run manifest. Use the helmless/action to template the manifest.'
+    required: false
+    default: 'helmless_manifest.yaml'
+  gcp_project:
+    description: 'Google Cloud project ID to deploy to.'
+    required: true
+  dry_run:
+    description: 'If true, only validate the configuration without deploying.'
+    required: false
+    default: 'false'
+outputs:
+  name:
+    description: 'The name of the deployed Cloud Run workload.'
+    value: ${{ steps.variables.outputs.name }}
+  type:
+    description: 'The type of workload that was deployed. Either "service" or "job".'
+    value: ${{ steps.variables.outputs.type }}
+  region:
+    description: 'The region the workload was deployed to.'
+    value: ${{ steps.variables.outputs.region }}
+
+runs:
+  using: composite
+  steps:
+    - name: 📦 Setup Cloud SDK
+      uses: google-github-actions/setup-gcloud@v2
+
+    - name: 🏷️ Extract Variables
+      id: variables
+      shell: bash
+      run: |
+        REGION=$(yq eval '.metadata.annotations["run.googleapis.com/region"]' ${{ inputs.manifest_path }})
+        echo "region=$REGION" >> $GITHUB_OUTPUT
+        echo "🌎 Deploying to region: $REGION"
+
+        NAME=$(yq eval '.metadata.name' ${{ inputs.manifest_path }})
+        echo "name=$NAME" >> $GITHUB_OUTPUT
+
+        TYPE=$(yq eval '.kind' ${{ inputs.manifest_path }} | tr '[:upper:]' '[:lower:]')
+        echo "type=$TYPE" >> $GITHUB_OUTPUT
+
+    - name: 🚀 Deploy to Cloud Run
+      shell: bash
+      id: deploy
+      run: |
+        gcloud run ${{ steps.variables.outputs.type }}s replace ${{ inputs.manifest_path }} \
+          --region=${{ steps.variables.outputs.region }} \
+          --project=${{ inputs.gcp_project }} ${{ inputs.dry_run == 'true' && '--dry-run' || '' }}

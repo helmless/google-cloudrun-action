@@ -1,0 +1,49 @@
+name: 🚀 Release
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+  pull-requests: write
+  packages: write
+
+jobs:
+  release:
+    name: 🏷️ Release Please
+    runs-on: ubuntu-latest
+    steps:
+      # Required so that a release triggers follow up workflows
+      - name: 🔑 Generate Token
+        id: generate-token
+        uses: peter-murray/workflow-application-token-action@v3
+        with:
+          application_id: ${{ secrets.CI_BOT_ID }}
+          application_private_key: ${{ secrets.CI_BOT_KEY }}
+
+      - name: 📦 Create Release
+        uses: googleapis/release-please-action@v4
+        id: release
+        with:
+          token: ${{ steps.generate-token.outputs.token }}
+
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🔖 Tag Major and Minor Versions
+        if: ${{ steps.release.outputs.release_created }}
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git remote add gh-token "https://${{ secrets.GITHUB_TOKEN }}@github.com/googleapis/release-please-action.git"
+          git tag -d v${{ steps.release.outputs.major }} || true
+          git tag -d v${{ steps.release.outputs.major }}.${{ steps.release.outputs.minor }} || true
+          git push origin :v${{ steps.release.outputs.major }} || true
+          git push origin :v${{ steps.release.outputs.major }}.${{ steps.release.outputs.minor }} || true
+          git tag -a v${{ steps.release.outputs.major }} -m "Release v${{ steps.release.outputs.major }}"
+          git tag -a v${{ steps.release.outputs.major }}.${{ steps.release.outputs.minor }} -m "Release v${{ steps.release.outputs.major }}.${{ steps.release.outputs.minor }}"
+          git push origin v${{ steps.release.outputs.major }}
+          git push origin v${{ steps.release.outputs.major }}.${{ steps.release.outputs.minor }}

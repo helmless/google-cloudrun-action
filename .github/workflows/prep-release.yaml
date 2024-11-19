@@ -1,0 +1,29 @@
+name: 📦 Prepare Release
+on:
+  push:
+    branches:
+      - 'release-please-**'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  update_docs:
+    name: 📝 Update Docs
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: 📦 Checkout
+        uses: actions/checkout@v4
+
+      - name: 📝 Write Action Docs
+        uses: npalm/action-docs-action@v3
+        with:
+          sourceFile: 'action.yaml'
+
+      - name: ✅ Commit
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: 'docs: update action docs'
