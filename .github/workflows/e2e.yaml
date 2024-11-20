@@ -17,14 +17,6 @@ jobs:
       - name: 📥 Checkout Repository
         uses: actions/checkout@v4
 
-      - name: 🔑 Google Auth
-        id: auth
-        uses: google-github-actions/auth@v2
-        with:
-          token_format: 'access_token'
-          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_POOL }}
-          service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
-
       - uses: ./
         name: 🚀 Deploy
         id: deploy

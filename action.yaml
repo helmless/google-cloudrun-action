@@ -31,6 +31,14 @@ outputs:
 runs:
   using: composite
   steps:
+    - name: 🔑 Google Auth
+      id: auth
+      uses: google-github-actions/auth@v2
+      with:
+        token_format: 'access_token'
+        workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_POOL }}
+        service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+
     - name: 📦 Setup Cloud SDK
       uses: google-github-actions/setup-gcloud@v2
 

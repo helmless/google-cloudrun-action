@@ -1,11 +1,18 @@
-<!-- action-docs-header source="action.yml" -->
+# helmless/google-cloudrun-deploy-action
 
-<!-- action-docs-description source="action.yml" -->
+![Version](https://img.shields.io/github/v/release/helmless/google-cloudrun-deploy-action)
+![License](https://img.shields.io/github/license/helmless/google-cloudrun-deploy-action)
 
-<!-- action-docs-inputs source="action.yml" -->
+The [helmless/google-cloudrun-deploy-action](https://github.com/helmless/google-cloudrun-deploy-action) is a GitHub Action to deploy a serverless manifest to Google Cloud Run.
 
-<!-- action-docs-outputs source="action.yml" -->
+You need to supply a rendered manifest, for example using the [helmless/template-action](https://github.com/helmless/template-action) before to deploy the manifest.
 
-<!-- action-docs-runs action="action.yml" -->
+## Prerequisites
 
-<!-- action-docs-usage action="action.yml" project="<project>" version="<version>" -->
+<!-- x-release-please-start-version -->
+<!-- action-docs-usage action="action.yaml" project="helmless/google-cloudrun-deploy-action" version="v0.1.0" -->
+<!-- x-release-please-end -->
+
+<!-- action-docs-inputs source="action.yaml" -->
+
+<!-- action-docs-outputs source="action.yaml" -->
