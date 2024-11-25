@@ -5,12 +5,12 @@ repos:
     rev: v0.6.0
     hooks:
       - id: action-validator
+        name: ✅ Validate Action
         files: ^(.github/workflows/.*\.yaml|action\.yaml)$
   - repo: local
     hooks:
       - id: action-docs
         name: 📝 Update Action Docs
-        entry: npx action-docs
+        entry: npx action-docs --source action.yaml --update-readme
         language: node
         files: action\.yaml
-        args: [--sourceFile, action.yaml]
