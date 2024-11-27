@@ -17,12 +17,6 @@ inputs:
     description: 'If true, only validate the configuration without deploying.'
     required: false
     default: 'false'
-  workload_identity_provider:
-    description: 'The workload identity provider to use for authentication.'
-    required: true
-  service_account:
-    description: 'The optional service account to impersonate for authentication.'
-    required: false
 outputs:
   name:
     description: 'The name of the deployed Cloud Run workload.'
@@ -37,13 +31,6 @@ outputs:
 runs:
   using: composite
   steps:
-    - name: 🔑 Google Auth
-      id: auth
-      uses: google-github-actions/auth@v2
-      with:
-        workload_identity_provider: ${{ inputs.workload_identity_provider }}
-        service_account: ${{ inputs.service_account }}
-
     - name: 📦 Setup Cloud SDK
       uses: google-github-actions/setup-gcloud@v2
 
