@@ -17,6 +17,12 @@ jobs:
       - name: 📥 Checkout Repository
         uses: actions/checkout@v4
 
+      - name: 🔑 Google Auth
+        id: auth
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_POOL }}
+
       - name: 🚀 Template and Deploy Custom Chart
         uses: ./
         with:
