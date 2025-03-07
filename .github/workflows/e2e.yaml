@@ -13,6 +13,9 @@ jobs:
   deploy:
     name: 🚀 Deploy
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
     steps:
       - name: 📥 Checkout Repository
         uses: actions/checkout@v4
