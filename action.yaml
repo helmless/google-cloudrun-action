@@ -6,7 +6,6 @@ branding:
   color: 'blue'
 
 inputs:
-  # Essential template inputs
   chart:
     description: 'Helm chart to use for templating. Defaults to the Google Cloud Run chart.'
     required: false
@@ -19,8 +18,6 @@ inputs:
     description: 'Glob patterns of value files to include when templating the chart.'
     required: false
     default: 'values.yaml'
-  
-  # Essential deploy inputs
   dry_run:
     description: 'If true, only validate the configuration without deploying.'
     required: false
@@ -39,7 +36,7 @@ runs:
   steps:
     - name: 📄 Template Cloud Run Manifest
       id: template
-      uses: helmless/action@v1 
+      uses: helmless/template-action@v0
       with:
         chart: ${{ inputs.chart }}
         chart_version: ${{ inputs.chart_version }}
