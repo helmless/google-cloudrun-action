@@ -1,0 +1,4 @@
+service:
+  name: e2e-test
+  region: europe-west1
+  project: helmless
