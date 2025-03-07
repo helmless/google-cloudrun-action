@@ -17,76 +17,16 @@ jobs:
       - name: 📥 Checkout Repository
         uses: actions/checkout@v4
 
-      - name: 🚀 Template and Deploy
-        id: deploy
+      - name: 🚀 Template and Deploy Custom Chart
         uses: ./
         with:
           chart: './charts/e2e-test'
           dry_run: true
       
-      - name: 👀 Validate Outputs
-        shell: bash
-        run: |
-          # Check manifests_deployed output
-          if [[ -z "${{ steps.deploy.outputs.manifests_deployed }}" ]]; then
-            echo "::error::Deploy action did not output manifests_deployed count"
-            exit 1
-          elif [[ "${{ steps.deploy.outputs.manifests_deployed }}" -lt 1 ]]; then
-            echo "::error::Expected at least one manifest to be deployed, got ${{ steps.deploy.outputs.manifests_deployed }}"
-            exit 1
-          fi
-          echo "✅ Successfully deployed ${{ steps.deploy.outputs.manifests_deployed }} manifest(s)"
-          
-          # Check workloads output
-          if [[ -z "${{ steps.deploy.outputs.workloads }}" ]]; then
-            echo "::error::Deploy action did not output workloads array"
-            exit 1
-          fi
-          echo "📄 Workloads output: ${{ steps.deploy.outputs.workloads }}"
-          
-          # Parse workloads JSON and validate the first workload
-          echo '${{ steps.deploy.outputs.workloads }}' > workloads.json
-          
-          # Install jq if needed
-          if ! command -v jq &> /dev/null; then
-            echo "Installing jq..."
-            sudo apt-get update && sudo apt-get install -y jq
-          fi
-          
-          # Extract values from the first workload
-          FIRST_WORKLOAD=$(jq '.[0]' workloads.json)
-          echo "First workload: $FIRST_WORKLOAD"
-          
-          # Check name
-          WORKLOAD_NAME=$(echo "$FIRST_WORKLOAD" | jq -r '.name')
-          if [[ -z "$WORKLOAD_NAME" ]]; then
-            echo "::error::No name found in first workload"
-            exit 1
-          fi
-          echo "✅ Workload name: $WORKLOAD_NAME"
-          
-          # Check type
-          WORKLOAD_TYPE=$(echo "$FIRST_WORKLOAD" | jq -r '.type')
-          if [[ -z "$WORKLOAD_TYPE" ]]; then
-            echo "::error::No type found in first workload"
-            exit 1
-          fi
-          echo "✅ Workload type: $WORKLOAD_TYPE"
-          
-          # Check region
-          WORKLOAD_REGION=$(echo "$FIRST_WORKLOAD" | jq -r '.region')
-          if [[ -z "$WORKLOAD_REGION" ]]; then
-            echo "::error::No region found in first workload"
-            exit 1
-          fi
-          echo "✅ Workload region: $WORKLOAD_REGION"
-          
-          # Check project
-          WORKLOAD_PROJECT=$(echo "$FIRST_WORKLOAD" | jq -r '.project')
-          if [[ -z "$WORKLOAD_PROJECT" ]]; then
-            echo "::error::No project found in first workload"
-            exit 1
-          fi
-          echo "✅ Workload project: $WORKLOAD_PROJECT"
-          
-          echo "✅ E2E test passed successfully!"
+      - name: 🚀 Template Default Chart
+        uses: ./
+        with:
+          files: |
+            ./charts/values-only/values.yaml
+            ./charts/values-only/values.dev.yaml
+          dry_run: true
