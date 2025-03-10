@@ -1,6 +1,6 @@
-service:
-  name: e2e-test
-  region: europe-west1
-  project: helmless
+name: full-service
+region: europe-west1
+project: helmless
+
 env:
   COLOR: blue

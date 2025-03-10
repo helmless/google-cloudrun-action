@@ -32,7 +32,7 @@ jobs:
           chart: './charts/e2e-test'
           dry_run: true
       
-      - name: 🚀 Template Default Chart
+      - name: 🚀 Template and Deploy Default Chart
         uses: ./
         with:
           files: |

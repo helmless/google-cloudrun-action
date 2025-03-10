@@ -18,6 +18,10 @@ inputs:
     description: 'Glob patterns of value files to include when templating the chart.'
     required: false
     default: 'values.yaml'
+  template_only:
+    description: 'If true, only template the chart without deploying. Will also skip dry_run validation.'
+    required: false
+    default: 'false'
   dry_run:
     description: 'If true, only validate the configuration without deploying.'
     required: false
@@ -41,11 +45,11 @@ runs:
         chart: ${{ inputs.chart }}
         chart_version: ${{ inputs.chart_version }}
         files: ${{ inputs.files }}
-        print_manifest: 'true'
     
     - name: 🚀 Deploy to Cloud Run
       id: deploy
       uses: ./deploy
+      if: ${{ inputs.template_only }} == 'false'
       with:
         path: ${{ steps.template.outputs.output_dir }}
         dry_run: ${{ inputs.dry_run }}
