@@ -50,7 +50,7 @@ runs:
       shell: bash
       if: ${{ inputs.template_only }} == 'false'
       run: |
-        if [[ "$(pwd)" == *helmless/google-cloudrun-action* ]]; then
+        if [[ "$(pwd)" == *google-cloudrun-action* ]]; then
           echo "Running inside of helmless/google-cloudrun-action, no need to copy action."
           exit 0
         fi
