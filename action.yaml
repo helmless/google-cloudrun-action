@@ -48,7 +48,7 @@ runs:
     
     - name: 🚀 Deploy to Cloud Run
       id: deploy
-      uses: ./deploy
+      uses: $GITHUB_ACTION_PATH/deploy
       if: ${{ inputs.template_only }} == 'false'
       with:
         path: ${{ steps.template.outputs.output_dir }}
