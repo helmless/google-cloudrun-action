@@ -20,22 +20,32 @@ For advanced customization, you can use the individual actions directly: [helmle
 ```yaml
 - uses: helmless/google-cloudrun-action@v0.1.0
   with:
-    # Chart configuration
-    chart: oci://ghcr.io/helmless/google-cloudrun-service
-    # Helm chart to use for templating
+    chart:
+    # Helm chart to use for templating. Defaults to the Google Cloud Run chart.
     #
     # Required: false
     # Default: oci://ghcr.io/helmless/google-cloudrun-service
-    
-    files: values.yaml
-    # Glob patterns of value files to include when templating the chart
+
+    chart_version:
+    # Version of the Helm chart to use.
+    #
+    # Required: false
+    # Default: latest
+
+    files:
+    # Glob patterns of value files to include when templating the chart.
     #
     # Required: false
     # Default: values.yaml
-    
-    # Optional configuration
-    dry_run: false
-    # If true, only validate the configuration without deploying
+
+    template_only:
+    # If true, only template the chart without deploying. Will also skip dry_run validation.
+    #
+    # Required: false
+    # Default: false
+
+    dry_run:
+    # If true, only validate the configuration without deploying.
     #
     # Required: false
     # Default: false
@@ -51,6 +61,7 @@ For advanced customization, you can use the individual actions directly: [helmle
 | `chart` | <p>Helm chart to use for templating. Defaults to the Google Cloud Run chart.</p> | `false` | `oci://ghcr.io/helmless/google-cloudrun-service` |
 | `chart_version` | <p>Version of the Helm chart to use.</p> | `false` | `latest` |
 | `files` | <p>Glob patterns of value files to include when templating the chart.</p> | `false` | `values.yaml` |
+| `template_only` | <p>If true, only template the chart without deploying. Will also skip dry_run validation.</p> | `false` | `false` |
 | `dry_run` | <p>If true, only validate the configuration without deploying.</p> | `false` | `false` |
 <!-- action-docs-inputs source="action.yaml" -->
 

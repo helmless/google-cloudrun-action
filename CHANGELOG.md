@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.0](https://github.com/helmless/google-cloudrun-deploy-action/compare/v0.1.0...v0.2.0) (2025-03-10)
+
+
+### Features
+
+* combine template and deploy in single action ([#3](https://github.com/helmless/google-cloudrun-deploy-action/issues/3)) ([ad3b925](https://github.com/helmless/google-cloudrun-deploy-action/commit/ad3b9253a572be7dfb3fcf150379de2b0ccd43f9))
+
 ## 0.1.0 (2024-12-01)
 
 
