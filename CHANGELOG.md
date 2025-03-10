@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.2.1](https://github.com/helmless/google-cloudrun-action/compare/v0.2.0...v0.2.1) (2025-03-10)
+
+
+### Bug Fixes
+
+* copy action if run from outside ([1e6bb5c](https://github.com/helmless/google-cloudrun-action/commit/1e6bb5ceb7b4c8f05c2da5884b283076b9df30dd))
+* drop org prefix from pwd check ([cd114ae](https://github.com/helmless/google-cloudrun-action/commit/cd114ae3854163ee584191ea707da6bf01ea927d))
+* use github action path for nested action call ([76d6e7b](https://github.com/helmless/google-cloudrun-action/commit/76d6e7b3e97b421fbdc01d44afeebeb39cfa61f6))
+
 ## [0.2.0](https://github.com/helmless/google-cloudrun-deploy-action/compare/v0.1.0...v0.2.0) (2025-03-10)
 
 
