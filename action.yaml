@@ -38,17 +38,27 @@ outputs:
 runs:
   using: composite
   steps:
-    - name: 📄 Template Cloud Run Manifest
+    - name: 📝 Template Cloud Run Manifest
       id: template
       uses: helmless/template-action@v0
       with:
         chart: ${{ inputs.chart }}
         chart_version: ${{ inputs.chart_version }}
         files: ${{ inputs.files }}
+
+    - name: 📄 Copy Deploy Action
+      shell: bash
+      if: ${{ inputs.template_only }} == 'false'
+      run: |
+        if [[ "$(pwd)" == *helmless/google-cloudrun-action* ]]; then
+          echo "Running inside of helmless/google-cloudrun-action, no need to copy action."
+          exit 0
+        fi
+        cp -r $GITHUB_ACTION_PATH/deploy ./deploy
     
     - name: 🚀 Deploy to Cloud Run
       id: deploy
-      uses: $GITHUB_ACTION_PATH/deploy
+      uses: ./deploy
       if: ${{ inputs.template_only }} == 'false'
       with:
         path: ${{ steps.template.outputs.output_dir }}
