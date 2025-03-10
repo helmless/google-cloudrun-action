@@ -1,0 +1,10 @@
+apiVersion: v2
+name: e2e-test
+description: A Helmless application chart for testing the Google Cloud Run deploy action.
+version: 0.1.0
+appVersion: "1.16.0"
+dependencies:
+  - name: google-cloudrun-service
+    version: "0.x.x"
+    repository: oci://ghcr.io/helmless
+    alias: service

@@ -1,57 +1,55 @@
-name: Helmless Google Cloud Run Deploy
-description: Deploys a rendered Helmless manifest to Google Cloud Run.
+name: Google Cloud Run Action
+description: Templates and deploys applications to Google Cloud Run in a single step.
 author: 'Michael Reichenbach (Silthus)'
 branding:
   icon: 'cloud'
   color: 'blue'
 
 inputs:
-  manifest_path:
-    description: 'The path to the rendered Helmless Google Cloud Run manifest. Use the helmless/action to template the manifest.'
+  chart:
+    description: 'Helm chart to use for templating. Defaults to the Google Cloud Run chart.'
     required: false
-    default: 'helmless_manifest.yaml'
-  gcp_project:
-    description: 'Google Cloud project ID to deploy to.'
-    required: true
+    default: 'oci://ghcr.io/helmless/google-cloudrun-service'
+  chart_version:
+    description: 'Version of the Helm chart to use.'
+    required: false
+    default: 'latest'
+  files:
+    description: 'Glob patterns of value files to include when templating the chart.'
+    required: false
+    default: 'values.yaml'
+  template_only:
+    description: 'If true, only template the chart without deploying. Will also skip dry_run validation.'
+    required: false
+    default: 'false'
   dry_run:
     description: 'If true, only validate the configuration without deploying.'
     required: false
     default: 'false'
-outputs:
-  name:
-    description: 'The name of the deployed Cloud Run workload.'
-    value: ${{ steps.variables.outputs.name }}
-  type:
-    description: 'The type of workload that was deployed. Either "service" or "job".'
-    value: ${{ steps.variables.outputs.type }}
-  region:
-    description: 'The region the workload was deployed to.'
-    value: ${{ steps.variables.outputs.region }}
 
+outputs:
+  manifests_deployed:
+    description: 'The number of manifests that were deployed.'
+    value: ${{ steps.deploy.outputs.manifests_deployed }}
+  workloads:
+    description: 'JSON array of all deployed Cloud Run workloads with their details (name, type, region, project).'
+    value: ${{ steps.deploy.outputs.workloads }}
+  
 runs:
   using: composite
   steps:
-    - name: 📦 Setup Cloud SDK
-      uses: google-github-actions/setup-gcloud@v2
-
-    - name: 🏷️ Extract Variables
-      id: variables
-      shell: bash
-      run: |
-        REGION=$(yq eval '.metadata.labels["cloud.googleapis.com/location"]' ${{ inputs.manifest_path }})
-        echo "region=$REGION" >> $GITHUB_OUTPUT
-        echo "🌎 Deploying to region: $REGION"
-
-        NAME=$(yq eval '.metadata.name' ${{ inputs.manifest_path }})
-        echo "name=$NAME" >> $GITHUB_OUTPUT
-
-        TYPE=$(yq eval '.kind' ${{ inputs.manifest_path }} | tr '[:upper:]' '[:lower:]')
-        echo "type=$TYPE" >> $GITHUB_OUTPUT
-
+    - name: 📄 Template Cloud Run Manifest
+      id: template
+      uses: helmless/template-action@v0
+      with:
+        chart: ${{ inputs.chart }}
+        chart_version: ${{ inputs.chart_version }}
+        files: ${{ inputs.files }}
+    
     - name: 🚀 Deploy to Cloud Run
-      shell: bash
       id: deploy
-      run: |
-        gcloud run ${{ steps.variables.outputs.type }}s replace ${{ inputs.manifest_path }} \
-          --region=${{ steps.variables.outputs.region }} \
-          --project=${{ inputs.gcp_project }} ${{ inputs.dry_run == 'true' && '--dry-run' || '' }}
+      uses: ./deploy
+      if: ${{ inputs.template_only }} == 'false'
+      with:
+        path: ${{ steps.template.outputs.output_dir }}
+        dry_run: ${{ inputs.dry_run }}

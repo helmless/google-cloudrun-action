@@ -1,0 +1,6 @@
+name: full-service
+region: europe-west1
+project: helmless
+
+env:
+  COLOR: blue
