@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.0.0](https://github.com/helmless/google-cloudrun-action/compare/v0.2.2...v1.0.0) (2025-03-27)
+
+
+### Features
+
+* extract project and region from metadata manifest ([4908e91](https://github.com/helmless/google-cloudrun-action/commit/4908e91c1ca100082b1a6b659cbfa5499aa73a70))
+
+
+### Miscellaneous Chores
+
+* release 1.0.0 ([28b1391](https://github.com/helmless/google-cloudrun-action/commit/28b1391d71c0548d34d919dc09568bba54738f46))
+
 ## [0.2.2](https://github.com/helmless/google-cloudrun-action/compare/v0.2.1...v0.2.2) (2025-03-27)
 
 
