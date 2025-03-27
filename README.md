@@ -57,7 +57,7 @@ jobs:
           workload_identity_provider: "projects/YOUR_PROJECT_ID/locations/global/workloadIdentityPools/YOUR_WORKLOAD_IDENTITY_POOL/providers/github"
 
       - name: 🚀 Deploy Workload with Custom Chart
-        uses: helmless/google-cloudrun-action@v0.2.1
+        uses: helmless/google-cloudrun-action@v0.2.2
         with:
           # Replace this with the path to your Helm chart using the Helmless Helm chart as dependency
           chart: './charts/e2e-test'
@@ -70,7 +70,7 @@ jobs:
           dry_run: false
       
       - name: 🚀 Deploy Helmless Default Chart
-        uses: helmless/google-cloudrun-action@v0.2.1
+        uses: helmless/google-cloudrun-action@v0.2.2
         with:
           # As a convenience you can set the type to "service" or "job"
           # and the chart will be set automatically.
@@ -83,11 +83,11 @@ jobs:
 <!-- x-release-please-end -->
 
 <!-- x-release-please-start-version -->
-<!-- action-docs-usage action="action.yaml" project="helmless/google-cloudrun-action" version="v0.2.1" -->
+<!-- action-docs-usage action="action.yaml" project="helmless/google-cloudrun-action" version="v0.2.2" -->
 ### Usage
 
 ```yaml
-- uses: helmless/google-cloudrun-action@v0.1.0
+- uses: helmless/google-cloudrun-action@v0.2.2
   with:
     chart:
     # Helm chart to use for templating. Defaults to the Google Cloud Run chart.
@@ -119,7 +119,7 @@ jobs:
     # Required: false
     # Default: false
 ```
-<!-- action-docs-usage action="action.yaml" project="helmless/google-cloudrun-action" version="v0.1.0" -->
+<!-- action-docs-usage action="action.yaml" project="helmless/google-cloudrun-action" version="v0.2.2" -->
 <!-- x-release-please-end -->
 
 <!-- action-docs-inputs source="action.yaml" -->
@@ -150,7 +150,7 @@ The action returns information about all deployed workloads as a JSON array, whi
 ```yaml
 - name: Deploy to Cloud Run
   id: deploy
-  uses: helmless/google-cloudrun-action@v0.2.1
+  uses: helmless/google-cloudrun-action@v0.2.2
   with:
     files: values/production.yaml
 
