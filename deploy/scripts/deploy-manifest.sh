@@ -6,10 +6,21 @@ set -e
 MANIFEST_PATH="$1"
 DRY_RUN="$2"
 
-# Setup dry run flag
-DRY_RUN_FLAG=""
-if [ "$DRY_RUN" = "true" ]; then
-  DRY_RUN_FLAG="--dry-run"
+# Validate manifest is a supported Cloud Run resource type
+MANIFEST_API_VERSION=$(yq eval '.apiVersion' "$MANIFEST_PATH")
+MANIFEST_KIND=$(yq eval '.kind' "$MANIFEST_PATH")
+
+# Check for valid Cloud Run resource types
+if [[ "$MANIFEST_API_VERSION" == "serving.knative.dev/v1" && "$MANIFEST_KIND" == "Service" ]]; then
+  echo "✅ Valid Cloud Run Service manifest detected"
+  WORKLOAD_TYPE="service"
+elif [[ "$MANIFEST_API_VERSION" == "run.googleapis.com/v1" && "$MANIFEST_KIND" == "Job" ]]; then
+  echo "✅ Valid Cloud Run Job manifest detected"
+  WORKLOAD_TYPE="job"
+else
+  echo "❌ Invalid manifest type. Skipping deployment for $MANIFEST_PATH"
+  echo "   - apiVersion: $MANIFEST_API_VERSION, kind: $MANIFEST_KIND"
+  exit 0
 fi
 
 # Extract required information from manifest
@@ -34,6 +45,23 @@ echo "🏢 Project: $PROJECT"
 echo "🌎 Region: $REGION"
 echo "🏷️ Workload name: $NAME"
 echo "📦 Workload type: $TYPE"
+
+# Setup dry run options
+DRY_RUN_FLAG=""
+if [ "$DRY_RUN" = "true" ]; then
+  if [ "$WORKLOAD_TYPE" = "service" ]; then
+    # Dry run is supported for services
+    DRY_RUN_FLAG="--dry-run"
+    echo "🔍 Performing dry run for service"
+  else
+    # Dry run is not supported for jobs
+    echo "⚠️ Dry run is not supported for Cloud Run jobs - validation only"
+    # Validate the manifest but don't deploy
+    yq eval '.' "$MANIFEST_PATH" > /dev/null
+    echo "{\"name\":\"$NAME\",\"type\":\"$TYPE\",\"region\":\"$REGION\",\"project\":\"$PROJECT\"}"
+    exit 0
+  fi
+fi
 
 # Deploy to Cloud Run
 gcloud run ${TYPE}s replace "$MANIFEST_PATH" \

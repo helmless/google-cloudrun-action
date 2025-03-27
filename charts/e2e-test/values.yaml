@@ -1,4 +1,18 @@
+global:
+  project: helmless
+  region: europe-west1
+
+env: &env
+  COLOR: 'blue'
+
 service:
   name: full-service
-  region: europe-west1
   project: helmless
+  env:
+    <<: *env
+
+job:
+  name: full-job
+  project: helmless
+  env:
+    <<: *env

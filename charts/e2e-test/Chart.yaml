@@ -8,3 +8,7 @@ dependencies:
     version: "0.x.x"
     repository: oci://ghcr.io/helmless
     alias: service
+  - name: google-cloudrun-job
+    version: "0.x.x"
+    repository: oci://ghcr.io/helmless
+    alias: job
