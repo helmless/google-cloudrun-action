@@ -1,5 +1,5 @@
-name: Google Cloud Run Action
-description: Templates and deploys applications to Google Cloud Run in a single step.
+name: Helmless Google Cloud Run Deploy Action
+description: Templates and deploys a Helmless Helm chart to Google Cloud Run.
 author: 'Michael Reichenbach (Silthus)'
 branding:
   icon: 'cloud'
@@ -14,6 +14,9 @@ inputs:
     description: 'Version of the Helm chart to use.'
     required: false
     default: 'latest'
+  type:
+    description: 'One of "service" or "job". The chart and type settings are mutually exclusive. If the type is set, the chart input will be ignored and the type will be used to determine which Helmless chart to use.'
+    required: false
   files:
     description: 'Glob patterns of value files to include when templating the chart.'
     required: false
@@ -38,11 +41,24 @@ outputs:
 runs:
   using: composite
   steps:
+    - name: ⚙️ Set Chart
+      id: set-chart
+      shell: bash
+      run: |
+        if [[ -n "${{ inputs.type }}" ]]; then
+          echo "Setting chart to the Helmless default chart."
+          chart="oci://ghcr.io/helmless/google-cloudrun-${{ inputs.type }}"
+        else
+          echo "Setting chart to the provided chart."
+          chart="${{ inputs.chart }}"
+        fi
+        echo "chart=${chart}" >> $GITHUB_OUTPUT
+        
     - name: 📝 Template Cloud Run Manifest
       id: template
       uses: helmless/template-action@v0
       with:
-        chart: ${{ inputs.chart }}
+        chart: ${{ steps.set-chart.outputs.chart }}
         chart_version: ${{ inputs.chart_version }}
         files: ${{ inputs.files }}
 

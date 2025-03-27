@@ -31,50 +31,8 @@ runs:
     - name: 🚀 Deploy to Cloud Run
       id: deploy
       shell: bash
-      run: |
-        INPUT_PATH="${{ inputs.path }}"
-        DRY_RUN="${{ inputs.dry_run }}"
-        SCRIPTS_DIR="$GITHUB_ACTION_PATH/scripts"
-        
-        echo "🔍 Finding Cloud Run manifests..."
-        MANIFESTS=$("$SCRIPTS_DIR/find-manifests.sh" "$INPUT_PATH")
-        
-        # Check if we found any manifests
-        if [ -z "$MANIFESTS" ]; then
-          echo "❌ No manifests found to deploy!"
-          exit 1
-        fi
-        
-        # Count how many manifests we found
-        MANIFEST_COUNT=$(echo "$MANIFESTS" | wc -l)
-        echo "📊 Found $MANIFEST_COUNT manifest(s) to deploy"
-        
-        # Deploy each manifest and collect results
-        DEPLOY_RESULTS=()
-        for manifest in $MANIFESTS; do
-          MANIFEST_NAME=$(basename "$manifest")
-          echo "🚀 Deploying manifest: $MANIFEST_NAME"
-          
-          # Deploy the manifest and capture the JSON result
-          result=$("$SCRIPTS_DIR/deploy-manifest.sh" "$manifest" "$DRY_RUN")
-          exit_code=$?
-          
-          if [ $exit_code -eq 0 ]; then
-            echo "✅ Successfully deployed manifest"
-            echo "$result" >> deploy_results.json
-          else
-            echo "❌ Failed to deploy manifest"
-            exit 1
-          fi
-        done
-        
-        # Process the results
-        if [ -f deploy_results.json ]; then
-          RESULTS=$(cat deploy_results.json | "$SCRIPTS_DIR/process-results.sh")
-          echo "$RESULTS" >> $GITHUB_OUTPUT
-          echo "🎉 Deployment complete!"
-        else
-          echo "workloads=[]" >> $GITHUB_OUTPUT
-          echo "deployed_count=0" >> $GITHUB_OUTPUT
-          echo "⚠️ No deployments were processed"
-        fi 
+      env:
+        INPUT_PATH: ${{ inputs.path }}
+        DRY_RUN: ${{ inputs.dry_run }}
+        SCRIPTS_DIR: ${{ github.action_path }}/scripts
+      run: ${{ github.action_path }}/entrypoint.sh 

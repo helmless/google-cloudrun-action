@@ -35,6 +35,7 @@ jobs:
       - name: 🚀 Template and Deploy Default Chart
         uses: ./
         with:
+          type: service
           files: |
             ./charts/values-only/values.yaml
             ./charts/values-only/values.dev.yaml

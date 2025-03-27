@@ -1,20 +1,89 @@
+<a href="https://helmless.io" target="_blank">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset=".github/helmless_title.png">
+    <img alt="Helmless.io - Serverless Deployments Without Compromise" src=".github/helmless_title_light.png">
+  </picture>
+</a>
+
 # helmless/google-cloudrun-action
 
 ![Version](https://img.shields.io/github/v/release/helmless/google-cloudrun-action)
 ![License](https://img.shields.io/github/license/helmless/google-cloudrun-action)
 
-The [helmless/google-cloudrun-action](https://github.com/helmless/google-cloudrun-action) is a GitHub Action to template and deploy applications to Google Cloud Run in a single step. This streamlined action follows a "golden path" approach for ease of use, while providing just enough flexibility for common use cases.
+The [helmless/google-cloudrun-action](https://github.com/helmless/google-cloudrun-action) is a GitHub Action to template and deploy Helmless Helm charts to Google Cloud Run in a single step. This streamlined action follows a "golden path" approach for ease of use, while providing just enough flexibility for common use cases.
 
-For advanced customization, you can use the individual actions directly: [helmless/template-action](https://github.com/helmless/template-action) and [helmless/google-cloudrun-deploy-action](https://github.com/helmless/google-cloudrun-deploy-action).
+For advanced customization, you can use the individual actions directly: [helmless/template-action](https://github.com/helmless/template-action) and [helmless/google-cloudrun-action/deploy](https://github.com/helmless/google-cloudrun-action/tree/main/deploy).
 
 ## Prerequisites
 
 - A Google Cloud Platform account with appropriate permissions
 - Credentials for Google Cloud (typically provided via [google-github-actions/auth](https://github.com/google-github-actions/auth))
-- Your values file must include a `project` label to identify the GCP project
+- Your values file must include the `project` and `region` settings to identify the GCP project and region
+
+## Example Workflow
+
+The following example workflow demonstrates how to deploy a Helmless Helm chart to Google Cloud Run. For more details on how to setup your workflow, see the [Helmless Documentation](https://helmless.io/docs/cloudrun/ci-cd).
 
 <!-- x-release-please-start-version -->
-<!-- action-docs-usage action="action.yaml" project="helmless/google-cloudrun-action" version="v0.1.0" -->
+```yaml
+name: 🚀 Deploy to Google Cloud Run
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    name: 🚀 Deploy
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🔑 Google Auth
+        id: auth
+        uses: google-github-actions/auth@v2
+        with:
+          # See the Helmless Documentation for more information on how to setup a Workload Identity Provider
+          # https://helmless.io/docs/cloudrun/ci-cd/#workload-identity-federation
+          workload_identity_provider: "projects/YOUR_PROJECT_ID/locations/global/workloadIdentityPools/YOUR_WORKLOAD_IDENTITY_POOL/providers/github"
+
+      - name: 🚀 Deploy Workload with Custom Chart
+        uses: helmless/google-cloudrun-action@v0.2.1
+        with:
+          # Replace this with the path to your Helm chart using the Helmless Helm chart as dependency
+          chart: './charts/e2e-test'
+          # The values files are merged in order with the values.yaml file in the chart
+          # The last file wins if there are conflicts
+          files: |
+            ./charts/values-only/values.dev.yaml
+          # If true, the final manifest will be checked against the Cloud Run API
+          # without actually deploying.
+          dry_run: false
+      
+      - name: 🚀 Deploy Helmless Default Chart
+        uses: helmless/google-cloudrun-action@v0.2.1
+        with:
+          # As a convenience you can set the type to "service" or "job"
+          # and the chart will be set automatically.
+          type: service
+          # In this case you need to provide all values files you want to use.
+          files: |
+            ./charts/values-only/values.yaml
+            ./charts/values-only/values.dev.yaml
+```
+<!-- x-release-please-end -->
+
+<!-- x-release-please-start-version -->
+<!-- action-docs-usage action="action.yaml" project="helmless/google-cloudrun-action" version="v0.2.1" -->
 ### Usage
 
 ```yaml
@@ -74,40 +143,14 @@ For advanced customization, you can use the individual actions directly: [helmle
 | `workloads` | <p>JSON array of all deployed Cloud Run workloads with their details (name, type, region, project).</p> |
 <!-- action-docs-outputs source="action.yaml" -->
 
-## How It Works
-
-This action performs two key operations in sequence:
-
-1. **Template Generation**: Uses [helmless/action](https://github.com/helmless/template-action) to template a Helm chart into Cloud Run manifests.
-2. **Individual Deployments**: Iterates through each generated manifest and deploys it to Google Cloud Run.
-
-The manifests are always printed to the console for visibility, saved to a combined `helmless_manifest.yaml` file, and individual template files are stored in the `helmless_templates` directory.
-
-### Required Labels
-
-Each manifest must include the following labels in the `metadata.labels` section:
-
-- `project`: The Google Cloud project ID to deploy to
-- `cloud.googleapis.com/location`: The region to deploy to
-
-These are automatically populated if you're using the default Google Cloud Run chart, but you must provide them in your values file.
-
-### Multi-Manifest Support
-
-This action supports deploying multiple related Cloud Run resources together:
-
-- If your Helm chart generates multiple manifests (e.g., a service + job), each will be deployed separately
-- Each manifest must include `kind` and `name` fields, in addition to the required labels
-- Resources are deployed in alphabetical order by filename
-
 ### Using Deployment Outputs
 
 The action returns information about all deployed workloads as a JSON array, which you can use in subsequent steps:
-
+<!-- x-release-please-start-version -->
 ```yaml
 - name: Deploy to Cloud Run
   id: deploy
-  uses: helmless/google-cloudrun-action@v0.1.0
+  uses: helmless/google-cloudrun-action@v0.2.1
   with:
     files: values/production.yaml
 
@@ -119,73 +162,12 @@ The action returns information about all deployed workloads as a JSON array, whi
     # Access the workloads array (parse with jq)
     echo '${{ steps.deploy.outputs.workloads }}' | jq -r '.[] | "Deployed \(.type) \(.name) to \(.project) in \(.region)"'
 ```
+<!-- x-release-please-end -->
 
-## Common Use Cases
+## 🤝🏻 Contributing
 
-### Simple Deployment
+We welcome contributions! Please see the [Contributing Guide](CONTRIBUTING.md) for more information and the general [Helmless contribution guidelines](https://helmless.io/contributing).
 
-```yaml
-name: Deploy to Cloud Run
+## 📝 License
 
-on:
-  push:
-    branches: [ main ]
-
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      
-      - id: auth
-        uses: google-github-actions/auth@v2
-        with:
-          credentials_json: ${{ secrets.GCP_CREDENTIALS }}
-      
-      - name: Deploy to Cloud Run
-        uses: helmless/google-cloudrun-action@v0.1.0
-        with:
-          files: values/production.yaml
-```
-
-### Example values.yaml
-
-```yaml
-# Required labels for deployment
-labels:
-  project: my-gcp-project-id
-  cloud.googleapis.com/location: us-central1
-
-# Service configuration
-image:
-  repository: gcr.io/my-project/my-app
-  tag: latest
-```
-
-### Advanced Customization
-
-For more complex scenarios, use the individual actions directly:
-
-```yaml
-- name: Template manifest
-  uses: helmless/action@v1
-  with:
-    chart: oci://ghcr.io/helmless/google-cloudrun-service
-    chart_version: '1.2.3'
-    files: 'values/production.yaml'
-    values: |
-      image.repository=gcr.io/my-project/my-app
-      image.tag=${{ github.sha }}
-    output_path: my-manifest.yaml
-
-- name: Deploy to Cloud Run
-  id: deploy
-  uses: helmless/google-cloudrun-deploy-action@v1
-  with:
-    path: my-manifest.yaml
-
-- name: Process deployment results
-  run: |
-    WORKLOADS='${{ steps.deploy.outputs.workloads }}'
-    echo "Deployed workloads: $WORKLOADS"
-```
+This project is licensed under the [MIT License](LICENSE). See the [LICENSE](LICENSE) file for details.
