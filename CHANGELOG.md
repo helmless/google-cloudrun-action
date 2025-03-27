@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.2](https://github.com/helmless/google-cloudrun-action/compare/v0.2.1...v0.2.2) (2025-03-27)
+
+
+### Bug Fixes
+
+* do not dry run job deployments ([#6](https://github.com/helmless/google-cloudrun-action/issues/6)) ([986a380](https://github.com/helmless/google-cloudrun-action/commit/986a380cd8824c9ec84bb8f72af370ce633d3f37))
+
 ## [0.2.1](https://github.com/helmless/google-cloudrun-action/compare/v0.2.0...v0.2.1) (2025-03-10)
 
 

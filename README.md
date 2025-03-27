@@ -57,7 +57,7 @@ jobs:
           workload_identity_provider: "projects/YOUR_PROJECT_ID/locations/global/workloadIdentityPools/YOUR_WORKLOAD_IDENTITY_POOL/providers/github"
 
       - name: 🚀 Deploy Workload with Custom Chart
-        uses: helmless/google-cloudrun-action@v0.2.1
+        uses: helmless/google-cloudrun-action@v0.2.2
         with:
           # Replace this with the path to your Helm chart using the Helmless Helm chart as dependency
           chart: './charts/e2e-test'
@@ -70,7 +70,7 @@ jobs:
           dry_run: false
       
       - name: 🚀 Deploy Helmless Default Chart
-        uses: helmless/google-cloudrun-action@v0.2.1
+        uses: helmless/google-cloudrun-action@v0.2.2
         with:
           # As a convenience you can set the type to "service" or "job"
           # and the chart will be set automatically.
@@ -83,11 +83,11 @@ jobs:
 <!-- x-release-please-end -->
 
 <!-- x-release-please-start-version -->
-<!-- action-docs-usage action="action.yaml" project="helmless/google-cloudrun-action" version="v0.2.1" -->
+<!-- action-docs-usage action="action.yaml" project="helmless/google-cloudrun-action" version="v0.2.2" -->
 ### Usage
 
 ```yaml
-- uses: helmless/google-cloudrun-action@v0.1.0
+- uses: helmless/google-cloudrun-action@v0.2.2
   with:
     chart:
     # Helm chart to use for templating. Defaults to the Google Cloud Run chart.
@@ -100,6 +100,12 @@ jobs:
     #
     # Required: false
     # Default: latest
+
+    type:
+    # One of "service" or "job". The chart and type settings are mutually exclusive. If the type is set, the chart input will be ignored and the type will be used to determine which Helmless chart to use.
+    #
+    # Required: false
+    # Default: ""
 
     files:
     # Glob patterns of value files to include when templating the chart.
@@ -119,7 +125,7 @@ jobs:
     # Required: false
     # Default: false
 ```
-<!-- action-docs-usage action="action.yaml" project="helmless/google-cloudrun-action" version="v0.1.0" -->
+<!-- action-docs-usage action="action.yaml" project="helmless/google-cloudrun-action" version="v0.2.2" -->
 <!-- x-release-please-end -->
 
 <!-- action-docs-inputs source="action.yaml" -->
@@ -129,6 +135,7 @@ jobs:
 | --- | --- | --- | --- |
 | `chart` | <p>Helm chart to use for templating. Defaults to the Google Cloud Run chart.</p> | `false` | `oci://ghcr.io/helmless/google-cloudrun-service` |
 | `chart_version` | <p>Version of the Helm chart to use.</p> | `false` | `latest` |
+| `type` | <p>One of "service" or "job". The chart and type settings are mutually exclusive. If the type is set, the chart input will be ignored and the type will be used to determine which Helmless chart to use.</p> | `false` | `""` |
 | `files` | <p>Glob patterns of value files to include when templating the chart.</p> | `false` | `values.yaml` |
 | `template_only` | <p>If true, only template the chart without deploying. Will also skip dry_run validation.</p> | `false` | `false` |
 | `dry_run` | <p>If true, only validate the configuration without deploying.</p> | `false` | `false` |
@@ -150,7 +157,7 @@ The action returns information about all deployed workloads as a JSON array, whi
 ```yaml
 - name: Deploy to Cloud Run
   id: deploy
-  uses: helmless/google-cloudrun-action@v0.2.1
+  uses: helmless/google-cloudrun-action@v0.2.2
   with:
     files: values/production.yaml
 
