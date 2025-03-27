@@ -5,6 +5,7 @@ set -e
 
 MANIFEST_PATH="$1"
 DRY_RUN="$2"
+METADATA_PATH="$3"  # Optional path to metadata file
 
 # Validate manifest is a supported Cloud Run resource type
 MANIFEST_API_VERSION=$(yq eval '.apiVersion' "$MANIFEST_PATH")
@@ -23,20 +24,55 @@ else
   exit 0
 fi
 
-# Extract required information from manifest
-REGION=$(yq eval '.metadata.labels["cloud.googleapis.com/location"]' "$MANIFEST_PATH")
+# Extract NAME from the manifest - this is always in the manifest
 NAME=$(yq eval '.metadata.name' "$MANIFEST_PATH")
+
+# Check if we're using a metadata file
+if [ -n "$METADATA_PATH" ] && [ -f "$METADATA_PATH" ]; then
+  # Check if it's a valid metadata file
+  METADATA_API=$(yq eval '.apiVersion' "$METADATA_PATH")
+  METADATA_KIND=$(yq eval '.kind' "$METADATA_PATH")
+  
+  if [[ "$METADATA_API" == "cloudrun.helmless.io/v1" && "$METADATA_KIND" == "Metadata" ]]; then
+    echo "🔍 Found Helmless Metadata file, using its values"
+    
+    # Extract values from the metadata file
+    PROJECT=$(yq eval '.spec.project' "$METADATA_PATH")
+    REGION=$(yq eval '.spec.region' "$METADATA_PATH")
+    
+    echo "🏢 Project from metadata: $PROJECT"
+    echo "🌎 Region from metadata: $REGION"
+  else
+    echo "⚠️ Provided metadata file is not valid. It should have apiVersion: cloudrun.helmless.io/v1, kind: Metadata"
+    # Fall back to extracting from manifest
+    REGION=$(yq eval '.metadata.labels["cloud.googleapis.com/location"]' "$MANIFEST_PATH")
+    PROJECT=$(yq eval '.metadata.labels["project"]' "$MANIFEST_PATH")
+  fi
+else
+  # Extract from manifest labels as before
+  REGION=$(yq eval '.metadata.labels["cloud.googleapis.com/location"]' "$MANIFEST_PATH")
+  PROJECT=$(yq eval '.metadata.labels["project"]' "$MANIFEST_PATH")
+fi
+
 TYPE=$(yq eval '.kind' "$MANIFEST_PATH" | tr '[:upper:]' '[:lower:]')
-PROJECT=$(yq eval '.metadata.labels["project"]' "$MANIFEST_PATH")
 
 # Verify required fields
 if [ -z "$PROJECT" ]; then
-  echo "❌ No project label found in manifest. Ensure your values file sets project in the labels."
+  echo "❌ No project found in metadata or manifest labels. Ensure either:"
+  echo "   - Your metadata file has a valid spec.project field"
+  echo "   - Your manifest has a 'project' label"
   exit 1
 fi
 
 if [ -z "$REGION" ]; then
-  echo "❌ No region label found. Ensure your values file sets cloud.googleapis.com/location in the labels."
+  echo "❌ No region found in metadata or manifest labels. Ensure either:"
+  echo "   - Your metadata file has a valid spec.region field"
+  echo "   - Your manifest has a 'cloud.googleapis.com/location' label"
+  exit 1
+fi
+
+if [ -z "$NAME" ]; then
+  echo "❌ No name found in manifest. Ensure your manifest has a valid metadata.name field."
   exit 1
 fi
 

@@ -7,12 +7,10 @@ env: &env
 
 service:
   name: full-service
-  project: helmless
   env:
     <<: *env
 
 job:
   name: full-job
-  project: helmless
   env:
     <<: *env

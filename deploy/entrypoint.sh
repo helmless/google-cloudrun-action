@@ -24,18 +24,39 @@ if [ -f deploy_results.json ]; then
   rm deploy_results.json
 fi
 
+# First, look for Metadata manifest which will be used for all deployments
+echo "🔍 Looking for Helmless Metadata manifest..."
+METADATA_MANIFEST=""
+
+# Find the first metadata file in the input path
+if [ -d "$INPUT_PATH" ]; then
+  # Simple find command filtering for yaml files
+  find "$INPUT_PATH" -type f \( -name "*.yaml" -o -name "*.yml" \) -print0 | 
+  while IFS= read -r -d '' file; do
+    if grep -q "apiVersion: cloudrun.helmless.io/v1" "$file" && grep -q "kind: Metadata" "$file"; then
+      METADATA_MANIFEST="$file"
+      echo "✅ Found Metadata manifest: $METADATA_MANIFEST"
+      break
+    fi
+  done
+elif [ -f "$INPUT_PATH" ] && grep -q "apiVersion: cloudrun.helmless.io/v1" "$INPUT_PATH" && grep -q "kind: Metadata" "$INPUT_PATH"; then
+  METADATA_MANIFEST="$INPUT_PATH"
+  echo "✅ Found Metadata manifest: $METADATA_MANIFEST"
+fi
+
+# Now find Cloud Run manifests
 echo "🔍 Finding Cloud Run manifests..."
 MANIFESTS=$("$SCRIPTS_DIR/find-manifests.sh" "$INPUT_PATH")
 
 # Check if we found any manifests
 if [ -z "$MANIFESTS" ]; then
-  echo "❌ No manifests found to deploy!"
+  echo "❌ No Cloud Run manifests found to deploy!"
   exit 1
 fi
 
 # Count how many manifests we found
 MANIFEST_COUNT=$(echo "$MANIFESTS" | wc -l | tr -d ' ')
-echo "📊 Found $MANIFEST_COUNT manifest(s) to deploy"
+echo "📊 Found $MANIFEST_COUNT Cloud Run manifest(s) to deploy"
 
 # Deploy each manifest and collect results
 DEPLOY_RESULTS=()
@@ -48,8 +69,8 @@ for manifest in $MANIFESTS; do
   # Create a temporary file to store the output
   TMP_OUTPUT=$(mktemp)
   
-  # Run the deploy script and capture all output
-  "$SCRIPTS_DIR/deploy-manifest.sh" "$manifest" "$DRY_RUN" | tee "$TMP_OUTPUT"
+  # Run the deploy script and capture all output, passing the metadata manifest if found
+  "$SCRIPTS_DIR/deploy-manifest.sh" "$manifest" "$DRY_RUN" "$METADATA_MANIFEST" | tee "$TMP_OUTPUT"
   exit_code=${PIPESTATUS[0]}
   
   if [ $exit_code -eq 0 ]; then
