@@ -101,6 +101,12 @@ jobs:
     # Required: false
     # Default: latest
 
+    type:
+    # One of "service" or "job". The chart and type settings are mutually exclusive. If the type is set, the chart input will be ignored and the type will be used to determine which Helmless chart to use.
+    #
+    # Required: false
+    # Default: ""
+
     files:
     # Glob patterns of value files to include when templating the chart.
     #
@@ -129,6 +135,7 @@ jobs:
 | --- | --- | --- | --- |
 | `chart` | <p>Helm chart to use for templating. Defaults to the Google Cloud Run chart.</p> | `false` | `oci://ghcr.io/helmless/google-cloudrun-service` |
 | `chart_version` | <p>Version of the Helm chart to use.</p> | `false` | `latest` |
+| `type` | <p>One of "service" or "job". The chart and type settings are mutually exclusive. If the type is set, the chart input will be ignored and the type will be used to determine which Helmless chart to use.</p> | `false` | `""` |
 | `files` | <p>Glob patterns of value files to include when templating the chart.</p> | `false` | `values.yaml` |
 | `template_only` | <p>If true, only template the chart without deploying. Will also skip dry_run validation.</p> | `false` | `false` |
 | `dry_run` | <p>If true, only validate the configuration without deploying.</p> | `false` | `false` |
