@@ -17,7 +17,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: ⚙️ ASDF Install
-        uses: asdf-vm/actions/install@v3
+        uses: asdf-vm/actions/install@v4
 
       - name: 🧪 Run Pre-Commit
         uses: pre-commit/action@v3.0.1
