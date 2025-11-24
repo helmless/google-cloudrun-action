@@ -16,7 +16,7 @@ jobs:
       contents: write
     steps:
       - name: 📦 Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: 📝 Write Action Docs
         uses: npalm/action-docs-action@v3
