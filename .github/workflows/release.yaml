@@ -31,7 +31,7 @@ jobs:
           token: ${{ steps.generate-token.outputs.token }}
 
       - name: 📥 Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: 🔖 Tag Major and Minor Versions
         if: ${{ steps.release.outputs.release_created }}

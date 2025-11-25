@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: 🗂️ Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: ⚙️ ASDF Install
         uses: asdf-vm/actions/install@v4
