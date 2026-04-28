@@ -25,7 +25,7 @@ jobs:
           application_private_key: ${{ secrets.CI_BOT_KEY }}
 
       - name: 📦 Create Release
-        uses: googleapis/release-please-action@v4
+        uses: googleapis/release-please-action@v5
         id: release
         with:
           token: ${{ steps.generate-token.outputs.token }}
